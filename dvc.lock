@@ -1,0 +1,103 @@
+schema: '2.0'
+stages:
+  data_ingestion:
+    cmd: python src/data/data_ingestion.py
+    deps:
+    - path: src/data/data_ingestion.py
+      hash: md5
+      md5: 84ee20c73abc3d79699a9419d8b86690
+      size: 4408
+    params:
+      params.yaml:
+        data_ingestion.test_size: 0.2
+    outs:
+    - path: data/raw
+      hash: md5
+      md5: e13bcce40396cd334c8a7a334868166a.dir
+      size: 6919701
+      nfiles: 2
+  data_preprocessing:
+    cmd: python src/data/data_preprocessing.py
+    deps:
+    - path: data/raw/test.csv
+      hash: md5
+      md5: ea97ba82a4a25627bf4ffb52572484ea
+      size: 1348612
+    - path: data/raw/train.csv
+      hash: md5
+      md5: 1bd422dd6d135bced1d6c64a3e84a45d
+      size: 5571089
+    - path: src/data/data_preprocessing.py
+      hash: md5
+      md5: 3374d432db4e1e2dd689237a466cfb95
+      size: 4183
+    outs:
+    - path: data/interim
+      hash: md5
+      md5: ba42408e7bd1e85685474d6a349ae57e.dir
+      size: 5134850
+      nfiles: 2
+  model_building:
+    cmd: python src/model/model_building.py
+    deps:
+    - path: data/interim/train_processed.csv
+      hash: md5
+      md5: 35027dfda8274bd9356544f2ff358aa4
+      size: 4134324
+    - path: src/model/model_building.py
+      hash: md5
+      md5: 636f312faff7c8a307d9e8674478260c
+      size: 6027
+    params:
+      params.yaml:
+        model_building.learning_rate: 0.08081298097796712
+        model_building.max_depth: 20
+        model_building.max_features: 10000
+        model_building.n_estimators: 367
+        model_building.ngram_range:
+        - 1
+        - 3
+    outs:
+    - path: stacking_model.pkl
+      hash: md5
+      md5: 48d88087f21d5e78d083d3c26619be1f
+      size: 6827790
+    - path: tfidf_vectorizer.pkl
+      hash: md5
+      md5: e5d7506d14638e19514e5abdfc28fc59
+      size: 384115
+  model_evaluation:
+    cmd: python src/model/model_evaluation.py
+    deps:
+    - path: data/interim/test_processed.csv
+      hash: md5
+      md5: 4f30375397ec89fead1745ee6d70f201
+      size: 1000526
+    - path: src/model/model_evaluation.py
+      hash: md5
+      md5: a172e395d34d289bdb74456c6ff8d0cd
+      size: 6968
+    - path: stacking_model.pkl
+      hash: md5
+      md5: 48d88087f21d5e78d083d3c26619be1f
+      size: 6827790
+    - path: tfidf_vectorizer.pkl
+      hash: md5
+      md5: e5d7506d14638e19514e5abdfc28fc59
+      size: 384115
+    outs:
+    - path: experiment_info.json
+      hash: md5
+      md5: ab694dfe91e5040897d276ba0364713b
+      size: 91
+  model_registration:
+    cmd: python src/model/register_model.py
+    deps:
+    - path: experiment_info.json
+      hash: md5
+      md5: ab694dfe91e5040897d276ba0364713b
+      size: 91
+    - path: src/model/register_model.py
+      hash: md5
+      md5: 1565c57825929354bb3c913791e6cafb
+      size: 2415
